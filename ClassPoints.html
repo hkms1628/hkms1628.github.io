@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教室座位分記錄系統</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .classroom-section {
+            flex: 3;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .controls-section {
+            flex: 1;
+            min-width: 280px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #4b6cb7;
+        }
+        
+        /* 座位表樣式 */
+        .classroom-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .seat {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 2px solid #e9ecef;
+            position: relative;
+        }
+        
+        .seat:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+            border-color: #4b6cb7;
+        }
+        
+        .seat.selected {
+            border-color: #3498db;
+            background-color: #e8f4fc;
+        }
+        
+        .seat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .student-name {
+            font-size: 1.1rem;
+            color: #34495e;
+            margin-bottom: 10px;
+            height: 24px;
+        }
+        
+        .score-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .score-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .minus-btn {
+            background-color: #ff6b6b;
+            color: white;
+        }
+        
+        .plus-btn {
+            background-color: #51cf66;
+            color: white;
+        }
+        
+        .score-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .positive-score {
+            color: #2ecc71;
+        }
+        
+        .negative-score {
+            color: #e74c3c;
+        }
+        
+        .zero-score {
+            color: #7f8c8d;
+        }
+        
+        .score-input {
+            width: 60px;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .row-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4b6cb7;
+            padding: 0 10px;
+        }
+        
+        /* 控制面板樣式 */
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px 0 0 6px;
+            font-size: 1rem;
+        }
+        
+        .input-group button {
+            padding: 12px 20px;
+            background-color: #4b6cb7;
+            color: white;
+            border: none;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .input-group button:hover {
+            background-color: #3a5795;
+        }
+        
+        .file-upload {
+            margin-bottom: 20px;
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-input-label:hover {
+            background-color: #e9ecef;
+            border-color: #4b6cb7;
+        }
+        
+        .file-input-label i {
+            margin-right: 8px;
+            color: #4b6cb7;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+        
+        .file-format {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+        
+        .file-format h4 {
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .file-format pre {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+        
+        .summary-stats {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 15px;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .download-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .download-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .upload-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .upload-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .legend-positive {
+            background-color: #51cf66;
+        }
+        
+        .legend-negative {
+            background-color: #ff6b6b;
+        }
+        
+        .legend-zero {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background-color: #e74c3c;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .classroom-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .classroom-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .classroom-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .seat {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chalkboard-teacher"></i> 教室座位分記錄系統</h1>
+            <p class="subtitle">每排5位，共8行 | 支援檔案上傳與即時分數記錄</p>
+        </header>
+        
+        <div class="main-content">
+            <section class="classroom-section">
+                <h2 class="section-title"><i class="fas fa-chair"></i> 教室座位表</h2>
+                
+                <div class="row-label">
+                    <span>講台</span>
+                    <span>班級: <span id="currentClassName">一年一班</span></span>
+                </div>
+                
+                <div class="classroom-grid" id="classroomGrid">
+                    <!-- 座位將由JavaScript生成 -->
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-positive"></div>
+                        <span>正分</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-negative"></div>
+                        <span>負分</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-zero"></div>
+                        <span>零分</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="controls-section">
+                <h2 class="section-title"><i class="fas fa-cogs"></i> 控制面板</h2>
+                
+                <div class="file-upload">
+                    <label class="control-label">載入座位配置檔案</label>
+                    <div class="file-input-container">
+                        <label for="fileInput" class="file-input-label">
+                            <i class="fas fa-file-upload"></i> 選擇檔案
+                        </label>
+                        <input type="file" id="fileInput" accept=".txt">
+                    </div>
+                    <div class="file-info">
+                        請選擇 TXT 檔案 (格式: 班級名.TXT)
+                    </div>
+                    
+                    <div class="file-format">
+                        <h4>檔案格式說明</h4>
+                        <p>每行一筆學生資料，格式為：</p>
+                        <pre>行位置,列位置,座號,姓名</pre>
+                        <p>例如：</p>
+                        <pre>1,1,1,王小明
+1,2,2,林小華
+2,1,3,陳小美</pre>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">學生姓名</label>
+                    <div class="input-group">
+                        <input type="text" id="studentNameInput" placeholder="輸入學生姓名">
+                        <button id="updateNameBtn">更新姓名</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">手動設定分數</label>
+                    <div class="input-group">
+                        <input type="number" id="scoreInput" placeholder="輸入分數">
+                        <button id="updateScoreBtn">設定分數</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">目前選擇座位</label>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span>座號：</span>
+                            <span id="selectedSeatNumber">未選擇</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>姓名：</span>
+                            <span id="selectedStudentName">未選擇</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>目前分數：</span>
+                            <span id="selectedScore">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>位置：</span>
+                            <span id="selectedPosition">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">全班統計</label>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span>總分：</span>
+                            <span id="totalScore">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>平均分數：</span>
+                            <span id="averageScore">0.0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>最高分：</span>
+                            <span id="highestScore">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>最低分：</span>
+                            <span id="lowestScore">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn download-btn" id="downloadBtn">
+                        <i class="fas fa-download"></i> 下載資料
+                    </button>
+                    <button class="action-btn upload-btn" id="loadDefaultBtn">
+                        <i class="fas fa-redo"></i> 載入預設
+                    </button>
+                </div>
+                
+                <button class="reset-btn" id="resetAllBtn">
+                    <i class="fas fa-redo"></i> 重設所有分數
+                </button>
+            </section>
+        </div>
+        
+        <footer>
+            <p>教室座位分記錄系統 &copy; 2023 | 每排5位，共8行 | 支援TXT檔案上載功能</p>
+        </footer>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 初始學生資料 (40個座位)
+        const initialStudents = [
+            { seatNumber: 1, name: "王小明", score: 0, row: 1, col: 1 },
+            { seatNumber: 2, name: "林小華", score: 0, row: 1, col: 2 },
+            { seatNumber: 3, name: "陳小美", score: 0, row: 1, col: 3 },
+            { seatNumber: 4, name: "張小偉", score: 0, row: 1, col: 4 },
+            { seatNumber: 5, name: "劉小芳", score: 0, row: 1, col: 5 },
+            { seatNumber: 6, name: "黃小強", score: 0, row: 2, col: 1 },
+            { seatNumber: 7, name: "周小雯", score: 0, row: 2, col: 2 },
+            { seatNumber: 8, name: "吳小志", score: 0, row: 2, col: 3 },
+            { seatNumber: 9, name: "鄭小玲", score: 0, row: 2, col: 4 },
+            { seatNumber: 10, name: "孫小龍", score: 0, row: 2, col: 5 },
+            { seatNumber: 11, name: "朱小惠", score: 0, row: 3, col: 1 },
+            { seatNumber: 12, name: "馬小雲", score: 0, row: 3, col: 2 },
+            { seatNumber: 13, name: "胡小軍", score: 0, row: 3, col: 3 },
+            { seatNumber: 14, name: "林小玉", score: 0, row: 3, col: 4 },
+            { seatNumber: 15, name: "謝小芬", score: 0, row: 3, col: 5 },
+            { seatNumber: 16, name: "郭小軒", score: 0, row: 4, col: 1 },
+            { seatNumber: 17, name: "何小婷", score: 0, row: 4, col: 2 },
+            { seatNumber: 18, name: "高小傑", score: 0, row: 4, col: 3 },
+            { seatNumber: 19, name: "梁小娟", score: 0, row: 4, col: 4 },
+            { seatNumber: 20, name: "羅小宏", score: 0, row: 4, col: 5 },
+            { seatNumber: 21, name: "宋小琪", score: 0, row: 5, col: 1 },
+            { seatNumber: 22, name: "唐小威", score: 0, row: 5, col: 2 },
+            { seatNumber: 23, name: "董小欣", score: 0, row: 5, col: 3 },
+            { seatNumber: 24, name: "程小翔", score: 0, row: 5, col: 4 },
+            { seatNumber: 25, name: "袁小雅", score: 0, row: 5, col: 5 },
+            { seatNumber: 26, name: "鄧小文", score: 0, row: 6, col: 1 },
+            { seatNumber: 27, name: "許小慧", score: 0, row: 6, col: 2 },
+            { seatNumber: 28, name: "傅小柏", score: 0, row: 6, col: 3 },
+            { seatNumber: 29, name: "沈小瑩", score: 0, row: 6, col: 4 },
+            { seatNumber: 30, name: "曾小凱", score: 0, row: 6, col: 5 },
+            { seatNumber: 31, name: "彭小婷", score: 0, row: 7, col: 1 },
+            { seatNumber: 32, name: "呂小豪", score: 0, row: 7, col: 2 },
+            { seatNumber: 33, name: "蘇小雯", score: 0, row: 7, col: 3 },
+            { seatNumber: 34, name: "盧小峰", score: 0, row: 7, col: 4 },
+            { seatNumber: 35, name: "蔣小琳", score: 0, row: 7, col: 5 },
+            { seatNumber: 36, name: "蔡小宇", score: 0, row: 8, col: 1 },
+            { seatNumber: 37, name: "魏小安", score: 0, row: 8, col: 2 },
+            { seatNumber: 38, name: "葉小寧", score: 0, row: 8, col: 3 },
+            { seatNumber: 39, name: "潘小翔", score: 0, row: 8, col: 4 },
+            { seatNumber: 40, name: "杜小萱", score: 0, row: 8, col: 5 }
+        ];
+
+        let students = JSON.parse(JSON.stringify(initialStudents));
+        let selectedSeat = null;
+        let currentClassName = "一年一班";
+
+        // 顯示提示訊息
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast' + (isError ? ' error' : '') + ' show';
+            
+            setTimeout(() => {
+                toast.className = 'toast' + (isError ? ' error' : '');
+            }, 3000);
+        }
+
+        // 初始化教室座位
+        function initializeClassroom() {
+            const classroomGrid = document.getElementById('classroomGrid');
+            classroomGrid.innerHTML = '';
+            
+            // 按照行列排序
+            const sortedStudents = [...students].sort((a, b) => {
+                if (a.row !== b.row) return a.row - b.row;
+                return a.col - b.col;
+            });
+            
+            sortedStudents.forEach(student => {
+                const seatElement = document.createElement('div');
+                seatElement.className = 'seat';
+                seatElement.dataset.seatNumber = student.seatNumber;
+                
+                // 根據分數設置樣式
+                let scoreClass = 'zero-score';
+                if (student.score > 0) scoreClass = 'positive-score';
+                else if (student.score < 0) scoreClass = 'negative-score';
+                
+                seatElement.innerHTML = `
+                    <div class="seat-number">${student.seatNumber} 號</div>
+                    <div class="student-name">${student.name}</div>
+                    <div class="score-controls">
+                        <button class="score-btn minus-btn" data-action="decrease">-</button>
+                        <div class="score-display ${scoreClass}">${student.score}</div>
+                        <button class="score-btn plus-btn" data-action="increase">+</button>
+                    </div>
+                    <input type="number" class="score-input" value="${student.score}" placeholder="分數">
+                `;
+                
+                // 點擊選擇座位
+                seatElement.addEventListener('click', () => {
+                    selectSeat(student.seatNumber);
+                });
+                
+                // 分數按鈕事件
+                const minusBtn = seatElement.querySelector('.minus-btn');
+                const plusBtn = seatElement.querySelector('.plus-btn');
+                const scoreInput = seatElement.querySelector('.score-input');
+                
+                minusBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    updateScore(student.seatNumber, -1);
+                });
+                
+                plusBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    updateScore(student.seatNumber, 1);
+                });
+                
+                scoreInput.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    const newScore = parseInt(e.target.value) || 0;
+                    setScore(student.seatNumber, newScore);
+                });
+                
+                scoreInput.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+                
+                classroomGrid.appendChild(seatElement);
+            });
+            
+            // 預設選擇第一個座位
+            if (students.length > 0) {
+                selectSeat(students[0].seatNumber);
+            }
+            
+            updateSummaryStats();
+        }
+
+        // 選擇座位
+        function selectSeat(seatNumber) {
+            selectedSeat = seatNumber;
+            
+            // 移除所有座位的selected類
+            document.querySelectorAll('.seat').forEach(seat => {
+                seat.classList.remove('selected');
+            });
+            
+            // 為選中的座位添加selected類
+            const selectedSeatElement = document.querySelector(`.seat[data-seat-number="${seatNumber}"]`);
+            if (selectedSeatElement) {
+                selectedSeatElement.classList.add('selected');
+            }
+            
+            // 更新控制面板資訊
+            const student = students.find(s => s.seatNumber === seatNumber);
+            if (student) {
+                document.getElementById('selectedSeatNumber').textContent = student.seatNumber;
+                document.getElementById('selectedStudentName').textContent = student.name;
+                document.getElementById('selectedScore').textContent = student.score;
+                document.getElementById('selectedPosition').textContent = `第 ${student.row} 行, 第 ${student.col} 列`;
+                
+                // 更新輸入框的值
+                document.getElementById('studentNameInput').value = student.name;
+                document.getElementById('scoreInput').value = student.score;
+            }
+        }
+
+        // 更新分數
+        function updateScore(seatNumber, change) {
+            const studentIndex = students.findIndex(s => s.seatNumber === seatNumber);
+            if (studentIndex !== -1) {
+                students[studentIndex].score += change;
+                updateSeatDisplay(seatNumber);
+                
+                // 如果更新的是當前選中的座位，更新控制面板
+                if (selectedSeat === seatNumber) {
+                    document.getElementById('selectedScore').textContent = students[studentIndex].score;
+                    document.getElementById('scoreInput').value = students[studentIndex].score;
+                }
+                
+                updateSummaryStats();
+            }
+        }
+
+        // 設定分數
+        function setScore(seatNumber, newScore) {
+            const studentIndex = students.findIndex(s => s.seatNumber === seatNumber);
+            if (studentIndex !== -1) {
+                students[studentIndex].score = newScore;
+                updateSeatDisplay(seatNumber);
+                
+                // 如果設定的是當前選中的座位，更新控制面板
+                if (selectedSeat === seatNumber) {
+                    document.getElementById('selectedScore').textContent = newScore;
+                    document.getElementById('scoreInput').value = newScore;
+                }
+                
+                updateSummaryStats();
+            }
+        }
+
+        // 更新座位顯示
+        function updateSeatDisplay(seatNumber) {
+            const student = students.find(s => s.seatNumber === seatNumber);
+            const seatElement = document.querySelector(`.seat[data-seat-number="${seatNumber}"]`);
+            
+            if (student && seatElement) {
+                // 更新分數顯示
+                const scoreDisplay = seatElement.querySelector('.score-display');
+                scoreDisplay.textContent = student.score;
+                
+                // 根據分數更新顏色
+                scoreDisplay.classList.remove('positive-score', 'negative-score', 'zero-score');
+                if (student.score > 0) {
+                    scoreDisplay.classList.add('positive-score');
+                } else if (student.score < 0) {
+                    scoreDisplay.classList.add('negative-score');
+                } else {
+                    scoreDisplay.classList.add('zero-score');
+                }
+                
+                // 更新輸入框的值
+                const scoreInput = seatElement.querySelector('.score-input');
+                scoreInput.value = student.score;
+            }
+        }
+
+        // 更新統計資訊
+        function updateSummaryStats() {
+            const totalScore = students.reduce((sum, student) => sum + student.score, 0);
+            const averageScore = students.length > 0 ? (totalScore / students.length).toFixed(1) : 0;
+            const highestScore = Math.max(...students.map(student => student.score));
+            const lowestScore = Math.min(...students.map(student => student.score));
+            
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('averageScore').textContent = averageScore;
+            document.getElementById('highestScore').textContent = highestScore;
+            document.getElementById('lowestScore').textContent = lowestScore;
+        }
+
+        // 更新學生姓名
+        function updateStudentName() {
+            if (!selectedSeat) {
+                showToast('請先選擇一個座位', true);
+                return;
+            }
+            
+            const newName = document.getElementById('studentNameInput').value.trim();
+            if (!newName) {
+                showToast('請輸入學生姓名', true);
+                return;
+            }
+            
+            const studentIndex = students.findIndex(s => s.seatNumber === selectedSeat);
+            if (studentIndex !== -1) {
+                students[studentIndex].name = newName;
+                
+                // 更新座位顯示
+                const seatElement = document.querySelector(`.seat[data-seat-number="${selectedSeat}"]`);
+                if (seatElement) {
+                    seatElement.querySelector('.student-name').textContent = newName;
+                }
+                
+                // 更新控制面板
+                document.getElementById('selectedStudentName').textContent = newName;
+                
+                showToast(`座位 ${selectedSeat} 的姓名已更新為: ${newName}`);
+            }
+        }
+
+        // 重設所有分數
+        function resetAllScores() {
+            if (confirm('確定要重設所有學生的分數嗎？這將無法復原。')) {
+                students.forEach(student => {
+                    student.score = 0;
+                });
+                
+                initializeClassroom();
+                showToast('所有分數已重設為 0');
+            }
+        }
+
+        // 從檔案載入座位配置
+        function loadSeatingFromFile(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                try {
+                    const content = event.target.result;
+                    const lines = content.split('\n').filter(line => line.trim() !== '');
+                    
+                    // 從檔案名獲取班級名
+                    const className = file.name.replace('.txt', '').replace('.TXT', '');
+                    currentClassName = className;
+                    document.getElementById('currentClassName').textContent = className;
+                    
+                    // 解析每行資料
+                    const newStudents = [];
+                    let maxSeatNumber = 0;
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line === '') continue;
+                        
+                        const parts = line.split(',');
+                        if (parts.length < 4) {
+                            showToast(`第 ${i+1} 行格式錯誤，需要4個欄位`, true);
+                            continue;
+                        }
+                        
+                        const row = parseInt(parts[0].trim());
+                        const col = parseInt(parts[1].trim());
+                        const seatNumber = parseInt(parts[2].trim());
+                        const name = parts[3].trim();
+                        
+                        if (isNaN(row) || isNaN(col) || isNaN(seatNumber)) {
+                            showToast(`第 ${i+1} 行數值格式錯誤`, true);
+                            continue;
+                        }
+                        
+                        if (row < 1 || row > 8 || col < 1 || col > 5) {
+                            showToast(`第 ${i+1} 行位置超出範圍 (1-8行, 1-5列)`, true);
+                            continue;
+                        }
+                        
+                        newStudents.push({
+                            seatNumber,
+                            name,
+                            score: 0,
+                            row,
+                            col
+                        });
+                        
+                        if (seatNumber > maxSeatNumber) {
+                            maxSeatNumber = seatNumber;
+                        }
+                    }
+                    
+                    if (newStudents.length > 0) {
+                        students = newStudents;
+                        initializeClassroom();
+                        showToast(`已成功載入 ${newStudents.length} 個學生資料 (${className})`);
+                    } else {
+                        showToast('檔案中沒有有效的學生資料', true);
+                    }
+                    
+                } catch (error) {
+                    console.error('檔案解析錯誤:', error);
+                    showToast('檔案解析錯誤: ' + error.message, true);
+                }
+            };
+            
+            reader.onerror = function() {
+                showToast('讀取檔案時發生錯誤', true);
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // 下載資料為TXT檔案
+        function downloadData() {
+            let content = `班級: ${currentClassName}\n`;
+            content += `匯出時間: ${new Date().toLocaleString('zh-TW')}\n`;
+            content += "行,列,座號,姓名,分數\n";
+            
+            // 按照行列排序
+            const sortedStudents = [...students].sort((a, b) => {
+                if (a.row !== b.row) return a.row - b.row;
+                return a.col - b.col;
+            });
+            
+            sortedStudents.forEach(student => {
+                content += `${student.row},${student.col},${student.seatNumber},${student.name},${student.score}\n`;
+            });
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentClassName}_分數記錄_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('資料下載完成');
+        }
+
+        // 載入預設座位配置
+        function loadDefaultSeating() {
+            if (confirm('確定要載入預設座位配置嗎？目前資料將會遺失。')) {
+                students = JSON.parse(JSON.stringify(initialStudents));
+                currentClassName = "一年一班";
+                document.getElementById('currentClassName').textContent = currentClassName;
+                initializeClassroom();
+                showToast('已載入預設座位配置');
+            }
+        }
+
+        // 初始化事件監聽器
+        function initializeEventListeners() {
+            // 檔案上傳
+            document.getElementById('fileInput').addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // 檢查檔案格式
+                if (!file.name.toLowerCase().endsWith('.txt')) {
+                    showToast('請選擇TXT格式的檔案', true);
+                    return;
+                }
+                
+                loadSeatingFromFile(file);
+                
+                // 清空檔案輸入，以便再次選擇相同檔案
+                event.target.value = '';
+            });
+            
+            // 更新姓名按鈕
+            document.getElementById('updateNameBtn').addEventListener('click', updateStudentName);
+            
+            // 更新分數按鈕
+            document.getElementById('updateScoreBtn').addEventListener('click', () => {
+                if (!selectedSeat) {
+                    showToast('請先選擇一個座位', true);
+                    return;
+                }
+                
+                const newScore = parseInt(document.getElementById('scoreInput').value) || 0;
+                setScore(selectedSeat, newScore);
+            });
+            
+            // 下載資料按鈕
+            document.getElementById('downloadBtn').addEventListener('click', downloadData);
+            
+            // 載入預設按鈕
+            document.getElementById('loadDefaultBtn').addEventListener('click', loadDefaultSeating);
+            
+            // 重設所有分數按鈕
+            document.getElementById('resetAllBtn').addEventListener('click', resetAllScores);
+            
+            // 姓名輸入框按Enter鍵
+            document.getElementById('studentNameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') updateStudentName();
+            });
+            
+            // 分數輸入框按Enter鍵
+            document.getElementById('scoreInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    if (!selectedSeat) {
+                        showToast('請先選擇一個座位', true);
+                        return;
+                    }
+                    
+                    const newScore = parseInt(document.getElementById('scoreInput').value) || 0;
+                    setScore(selectedSeat, newScore);
+                }
+            });
+            
+            // 拖放檔案支援
+            const dropZone = document.querySelector('.file-input-label');
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.backgroundColor = '#e9ecef';
+                dropZone.style.borderColor = '#4b6cb7';
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.style.backgroundColor = '#f8f9fa';
+                dropZone.style.borderColor = '#ddd';
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.backgroundColor = '#f8f9fa';
+                dropZone.style.borderColor = '#ddd';
+                
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+                
+                // 檢查檔案格式
+                if (!file.name.toLowerCase().endsWith('.txt')) {
+                    showToast('請選擇TXT格式的檔案', true);
+                    return;
+                }
+                
+                loadSeatingFromFile(file);
+            });
+        }
+
+        // 初始化應用
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeClassroom();
+            initializeEventListeners();
+        });
+    </script>
+</body>
+</html>
